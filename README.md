@@ -17,7 +17,7 @@ https://hospital-system-production.vercel.app/
    - [Admin Services](#admin-services)  
    - [Triggers](#triggers)  
 3. [Architecture and Technology Stack](#architecture-and-technology-stack)  
-4. [Screenshots (Optional)](#screenshots-optional)  
+4. [Screenshots](#screenshots-optional)  
 5. [Installation and Setup](#installation-and-setup)  
 6. [Team Members & Contributions](#team-members--contributions)  
 7. [License](#license)
@@ -95,6 +95,13 @@ Our **Women’s Health Medical Database** is built to streamline healthcare proc
   - Stores user data, appointments, prescriptions, billing, and more.
 - **Deployment**:  
   - Deployed on a cloud platform (e.g., AWS, Heroku, or similar) for both backend and frontend.
+
+---
+
+## Screenshots
+
+### PatientDashboard
+![Patient Dashboard](SQLdump_Screenshots/WomenWellPNGs/patientDashboard.png)
 
 ---
 
