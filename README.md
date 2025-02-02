@@ -129,13 +129,13 @@ Our **Women’s Health Medical Database** is built to streamline healthcare proc
 
 ## Team Members & Contributions
 
-| Name                  | Key Contributions | Rating |
-|-----------------------|------------------|--------|
-| **Sthiber Guevara**   | Patient pages, doctor schedule, admin financial report | 4.5 |
-| **Anthony Casarta**   | Personal info, medical history, insurance, deployment | 4.5 |
-| **Eraj Anwar**        | Authentication, registration, doctor assignment | 4 |
-| **Isabella Truong**   | Dashboards, sidebars, patient info reports | 4 |
-| **Adam Johnson**      | Booking, appointment handling, admin deactivation, email triggers | 5 |
+| Name                  | Key Contributions |
+|-----------------------|------------------|
+| **Eraj Anwar**        | Authentication, registration, doctor assignment |
+| **Anthony Casarta**   | Personal info, medical history, insurance, deployment |
+| **Adam Johnson**      | Booking, appointment handling, admin deactivation, email triggers |
+| **Isabella Truong**   | Dashboards, sidebars, patient info reports |
+| **Sthiber Guevara**   | Patient pages, doctor schedule, admin financial report |
 
 ---
 
