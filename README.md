@@ -4,6 +4,11 @@ A user-friendly platform connecting **doctors** and **patients** for appointment
 
 ---
 
+Access Original Github (to show work):
+https://github.com/Knathmer/Hospital_System
+Access to website:
+https://hospital-system-production.vercel.app/
+
 ## Table of Contents
 1. [Overview](#overview)  
 2. [Features](#features)  
