@@ -13,8 +13,11 @@ RUN npm install
 # Copy project files
 COPY . .
 
-# Expose port 3000 for React dev server
-EXPOSE 3000
+# Build Tailwind CSS
+RUN npm run tailwind:build
 
-# Start React development server
-CMD ["npm", "start"]
+# Expose port 5173 for Vite dev server
+EXPOSE 5173
+
+# Start React development server with Tailwind watch
+CMD ["npm", "run", "dev"]

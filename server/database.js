@@ -1,8 +1,14 @@
 import mysql from "mysql2/promise";
-import fs from "fs";
 
-// Load configuration from config.json
-const config = JSON.parse(fs.readFileSync("./config.json"));
+// Get configuration from environment variables
+const config = {
+  db: {
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || 'rootpassword',
+    database: process.env.DB_NAME || 'womens_health_db'
+  }
+};
 
 // Create a connection pool with SSL settings if needed
 const pool = mysql.createPool({
@@ -11,9 +17,9 @@ const pool = mysql.createPool({
   password: config.db.password,
   database: config.db.database,
   connectionLimit: 10,
-  ssl: {
-    rejectUnauthorized: true, // You can set this to `false` to allow self-signed certs
-  },
+  ssl: process.env.NODE_ENV === 'production' ? {
+    rejectUnauthorized: true,
+  } : false
 });
 
 // Directly use the promise-based pool.execute

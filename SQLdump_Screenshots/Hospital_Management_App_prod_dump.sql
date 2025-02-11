@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 9.1.0, for Win64 (x86_64)
 --
--- Host: medclinic-mysql-db-server.mysql.database.azure.com    Database: prodmedical_clinic_database
+-- Host: medclinic-mysql-db-server.mysql.database.azure.com    Database: womens_health_db
 -- ------------------------------------------------------
 -- Server version	8.0.37-azure
 
@@ -1254,7 +1254,7 @@ UNLOCK TABLES;
 /*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`medclinic_db_admin`@`%` SQL SECURITY DEFINER */
-/*!50001 VIEW `patient_name_view` AS select `medical_clinic_database`.`patient`.`firstName` AS `firstName`,`medical_clinic_database`.`patient`.`lastName` AS `lastName` from `medical_clinic_database`.`patient` where (`medical_clinic_database`.`patient`.`patientID` = 7) */;
+/*!50001 VIEW `patient_name_view` AS select `womens_health_db`.`patient`.`firstName` AS `firstName`,`womens_health_db`.`patient`.`lastName` AS `lastName` from `womens_health_db`.`patient` where (`womens_health_db`.`patient`.`patientID` = 7) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
