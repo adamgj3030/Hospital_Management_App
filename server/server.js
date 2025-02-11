@@ -14,7 +14,7 @@ const app = express();
 
 // CORS options configuration
 const corsOptions = {
-    origin: 'http://localhost:5173',  // Allow your frontend's origin
+    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],  // Allow your frontend's origin
     methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Allowed HTTP methods
     credentials: true,  // Allow credentials such as cookies or headers
     allowedHeaders: ['Content-Type', 'Authorization'],  // Allow specific headers
@@ -30,6 +30,7 @@ app.use("/appointment", appointmentRouter);
 app.use('/dataFetch', dataFetchRouter);
 
 // Start the server
-app.listen(3000, () => {
-    console.log("Server started on port 3000");
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`Server started on port ${PORT}`);
 });
