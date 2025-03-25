@@ -1,90 +1,156 @@
 # System Architecture Overview
 
-## High-Level Architecture
+## Technology Stack
 
-```mermaid
-graph TD
-    Client[React Frontend] -->|HTTP/REST| Server[Node.js Backend]
-    Server -->|SQL Queries| DB[(MySQL Database)]
-    Server -->|SMTP| Email[Email Service]
-    
-    subgraph Frontend
-        Client -->|Auth| Login[Login/Registration]
-        Client -->|React Router| Routes[Role-Based Routes]
-        Routes -->|Patient| PatientDash[Patient Dashboard]
-        Routes -->|Doctor| DoctorDash[Doctor Dashboard]
-        Routes -->|Admin| AdminDash[Admin Dashboard]
-    end
-    
-    subgraph Backend
-        Server -->|JWT| Auth[Authentication]
-        Server -->|Express| Routes[API Routes]
-        Server --> Controllers[Controllers]
-        Controllers --> Queries[SQL Queries]
-    end
-    
-    subgraph Database
-        DB --> Users[Users Tables]
-        DB --> Medical[Medical Records]
-        DB --> Appointments[Appointments]
-        DB --> Billing[Billing/Insurance]
-        DB -->|Triggers| EmailQueue[Email Queue]
-    end
+### Frontend
+- **React**: UI framework
+- **Tailwind CSS**: Styling framework
+- **Vite**: Build tool
+
+### Backend
+- **Node.js**: Runtime environment
+- **Express**: Web framework
+- **MySQL**: Database (v8.0.37-azure)
+- **JWT**: Authentication
+- **Nodemailer**: Email notifications
+
+## Database Architecture
+
+### Core Tables
+- **Users**: patient, doctor, admin (role-based tables)
+- **Medical**: appointments, prescriptions, medical_history
+- **Operations**: billing, insurance, services
+- **Communication**: email_queue
+
+### Key Features
+- Foreign key constraints for data integrity
+- Database triggers for:
+  - Email notifications on appointment status changes
+  - Automatic appointment updates when doctor/patient status changes
+- Enum types for status fields
+- Automated timestamps for auditing
+
+### Email Queue System
+```sql
+CREATE TABLE email_queue (
+  queueID INT UNSIGNED AUTO_INCREMENT,
+  appointmentID INT UNSIGNED NOT NULL,
+  patientID INT UNSIGNED NOT NULL,
+  doctorID INT UNSIGNED NOT NULL,
+  emailType ENUM('Confirmation', 'Cancellation') NOT NULL,
+  status ENUM('Pending', 'Sent', 'Failed') NOT NULL DEFAULT 'Pending',
+  sentAt DATETIME DEFAULT NULL,
+  PRIMARY KEY (queueID)
+)
 ```
 
-## Key Components
+## Authentication & Security
 
-### 1. Frontend Architecture
-- **React Components**: Modular UI components organized by user role
-- **Context API**: Global state management for authentication
-- **Protected Routes**: Role-based access control
-- **Responsive Design**: Tailwind CSS for styling
-- **Dynamic Forms**: Interactive patient and doctor interfaces
+### JWT Implementation
+- 1-hour token expiration
+- Role-based access control (patient, doctor, admin)
+- Token payload includes user ID and role
 
-### 2. Backend Architecture
-- **Express Server**: RESTful API endpoints
-- **JWT Authentication**: Secure user sessions
-- **Role Middleware**: Access control by user type
-- **Controllers**: Business logic separation
-- **Email Service**: Automated notifications
+### Basic Security Measures
+- CORS configuration for frontend domain
+- SQL query parameterization
+- Role-based route protection
+- Input validation on API endpoints
 
-### 3. Database Design
-- **User Management**: Separate tables for patients, doctors, and admins
-- **Medical Records**: Patient history and prescriptions
-- **Appointment System**: Scheduling and status tracking
-- **Billing/Insurance**: Payment and insurance tracking
-- **Database Triggers**: Automated email notifications and status updates
-
-## Security Measures
-- JWT-based authentication
-- Role-based access control
-- Password hashing
-- Input validation
-- SQL injection prevention
+### Areas for Security Enhancement
+- Password hashing not implemented (currently plain text)
+- No rate limiting
+- No SSL/TLS configuration documented
 
 ## Data Flow Examples
 
-### Appointment Booking Process
-1. Patient selects appointment slot
-2. Frontend sends booking request
-3. Backend validates availability
-4. Database creates appointment record
-5. Trigger queues confirmation email
-6. Response returns to frontend
-7. UI updates with confirmation
+### Appointment Booking
+1. Frontend submits appointment request
+2. Backend validates:
+   - Doctor availability
+   - Patient/Doctor status
+   - Time slot conflicts
+3. Database transaction:
+   - Creates appointment record
+   - Triggers email notification
+4. Email service processes queue
 
 ### Prescription Management
 1. Doctor creates prescription
-2. Backend validates and stores
-3. Patient receives notification
-4. Pharmacy gets updated
-5. Billing system processes charges
+2. System validates:
+   - Patient-doctor relationship
+   - Active status checks
+3. Database updates:
+   - Prescription record
+   - Refill counters
+   - Insurance approvals
 
-## Integration Points
-- Email service for notifications
-- Authentication system
-- Database triggers
-- Frontend state management
-- API endpoints
+## Database Triggers
 
-This architecture provides a scalable, maintainable, and secure foundation for the healthcare management system while maintaining clear separation of concerns.
+### Appointment Status Trigger
+```sql
+CREATE TRIGGER appointment_status_email_update 
+AFTER UPDATE ON appointment 
+FOR EACH ROW
+BEGIN
+    IF OLD.status = 'Requested' AND NEW.status = 'Scheduled' THEN
+        INSERT INTO email_queue (
+            appointmentID, 
+            patientID, 
+            doctorID, 
+            emailType
+        ) VALUES (
+            NEW.appointmentID, 
+            NEW.patientID, 
+            NEW.doctorID, 
+            'Confirmation'
+        );
+    ELSEIF OLD.status = 'Scheduled' AND NEW.status = 'Cancelled' THEN
+        INSERT INTO email_queue (
+            appointmentID, 
+            patientID, 
+            doctorID, 
+            emailType
+        ) VALUES (
+            NEW.appointmentID, 
+            NEW.patientID, 
+            NEW.doctorID, 
+            'Cancellation'
+        );
+    END IF;
+END;
+```
+
+## Development Environment
+
+### Local Setup
+- Node.js backend server
+- MySQL database
+- React development server
+- Environment variables for configuration
+
+### Database Connection
+- Connection pooling implemented
+- Transaction support for critical operations
+- Foreign key constraints enforced
+
+## Future Enhancement Recommendations
+
+1. Security Improvements
+   - Implement password hashing
+   - Add rate limiting
+   - Configure SSL/TLS
+   - Enhance input validation
+
+2. Performance Optimizations
+   - Add caching layer
+   - Implement connection pooling limits
+   - Optimize database queries
+   - Add index optimization
+
+3. Monitoring
+   - Add error tracking
+   - Implement performance monitoring
+   - Add audit logging
+
+This documentation reflects the current implementation while noting areas for potential improvement.
