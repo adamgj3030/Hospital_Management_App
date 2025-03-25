@@ -1,248 +1,425 @@
 # API Documentation
 
-## Overview
-This document outlines the RESTful API endpoints available in the Women's Health Medical Database system. All endpoints require authentication via JWT token except for login and registration.
+## Example Usage Scenarios
 
-## Base URL
-```
-http://localhost:5000/api
-```
+### 1. Authentication and Registration
 
-## Authentication
-
-### Login
+#### A. User Login
 ```http
 POST /auth/login
+Content-Type: application/json
 ```
-
-**Request Body:**
+**Request:**
 ```json
 {
   "email": "user@example.com",
-  "password": "password123",
-  "role": "patient|doctor|admin"
+  "password": "password123"
 }
 ```
-
-**Response:**
+**Success Response:**
 ```json
 {
-  "token": "jwt_token_here",
+  "message": "Login successful",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "user": {
-    "id": "user_id",
-    "role": "patient|doctor|admin",
-    "name": "User Name"
+    "id": "123",
+    "email": "user@example.com",
+    "role": "patient"
   }
 }
 ```
+**Error Response:**
+```json
+{
+  "message": "Invalid email or password"
+}
+```
 
-### Registration
+#### B. Patient Registration
 ```http
 POST /auth/register
+Content-Type: application/json
 ```
-
-**Request Body:**
+**Request:**
 ```json
 {
-  "email": "user@example.com",
-  "password": "password123",
-  "name": "User Name",
-  "role": "patient",
+  "firstName": "John",
+  "lastName": "Doe",
   "dateOfBirth": "1990-01-01",
-  "phone": "123-456-7890"
+  "gender": "M",
+  "phoneNumber": "123-456-7890",
+  "email": "patient@example.com",
+  "password": "password123",
+  "addrStreet": "123 Main St",
+  "addrZip": "12345",
+  "addrCity": "Houston",
+  "addrState": "TX",
+  "emergencyFirstName": "Jane",
+  "emergencyLastName": "Doe",
+  "emergencyRelationship": "Spouse",
+  "emergencyPhoneNumber": "098-765-4321",
+  "emergencyEmail": "emergency@example.com"
+}
+```
+**Success Response:**
+```json
+{
+  "message": "Registration Successful!"
+}
+```
+**Error Response:**
+```json
+{
+  "message": "Email already exists!",
+  "code": "VALIDATION_ERROR"
 }
 ```
 
-## Patient Endpoints
-
-### Get Patient Dashboard
+#### C. Doctor Registration (Admin Only)
 ```http
-GET /patient/dashboard
+POST /auth/admin/register
+Authorization: Bearer <admin_token>
+Content-Type: application/json
+```
+**Request:**
+```json
+{
+  "firstName": "Sarah",
+  "lastName": "Smith",
+  "gender": "F",
+  "dateOfBirth": "1980-01-01",
+  "workPhoneNumber": "123-456-7890",
+  "workEmail": "dr.smith@hospital.com",
+  "password": "password123",
+  "personalPhoneNumber": "098-765-4321",
+  "personalEmail": "sarah.smith@email.com",
+  "addrStreet": "456 Medical Center Dr",
+  "addrZip": "77001",
+  "addrCity": "Houston",
+  "addrState": "TX",
+  "officeID": "1",
+  "specialtyID": "1"
+}
+```
+**Success Response:**
+```json
+{
+  "message": "Registration Successful!"
+}
+```
+**Error Response:**
+```json
+{
+  "message": "Email already exists!",
+  "code": "VALIDATION_ERROR"
+}
 ```
 
+### 2. Appointment Booking Flow
+
+#### A. Get Available Specialties
+
+#### A. Get Available Specialties
+```http
+GET /appointment/specialties
+```
 **Response:**
 ```json
 {
-  "upcomingAppointments": [],
-  "prescriptions": [],
-  "bills": [],
-  "notifications": []
+  "specialties": [
+    {
+      "specialtyID": "1",
+      "specialtyName": "Obstetrics",
+      "description": "Pregnancy and childbirth care"
+    },
+    {
+      "specialtyID": "2",
+      "specialtyName": "Gynecology",
+      "description": "Women's reproductive health"
+    }
+  ]
 }
 ```
 
-### Book Appointment
+#### B. Get Available Services for Specialty
 ```http
-POST /patient/appointments
+GET /appointment/services?specialtyID=1
 ```
-
-**Request Body:**
+**Response:**
 ```json
 {
-  "doctorId": "doctor_id",
-  "date": "2025-02-15",
-  "time": "14:00",
-  "type": "regular|followup|emergency"
+  "services": [
+    {
+      "serviceID": "101",
+      "serviceName": "Initial Prenatal Visit",
+      "price": "250.00"
+    },
+    {
+      "serviceID": "102",
+      "serviceName": "Regular Checkup",
+      "price": "150.00"
+    }
+  ]
 }
 ```
 
-### Get Medical History
+#### C. Find Available Doctors
 ```http
-GET /patient/medical-history
+GET /appointment/doctors?specialtyID=1&state=TX&city=Houston
 ```
-
-### Update Medical History
-```http
-PUT /patient/medical-history
-```
-
-**Request Body:**
+**Response:**
 ```json
 {
-  "allergies": [],
-  "conditions": [],
-  "surgeries": [],
-  "medications": []
+  "doctors": [
+    {
+      "doctorID": "301",
+      "firstName": "Sarah",
+      "lastName": "Smith",
+      "gender": "F",
+      "specialtyName": "Obstetrics",
+      "officeLocation": "Houston Women's Clinic",
+      "officeAddress": "123 Medical Center Dr, Houston, TX 77001"
+    }
+  ]
 }
 ```
 
-## Doctor Endpoints
-
-### Get Doctor Schedule
+#### D. Check Available Time Slots
 ```http
-GET /doctor/schedule
+GET /appointment/appointments?doctorID=301&date=2025-03-26
 ```
-
-**Query Parameters:**
-- `date`: YYYY-MM-DD
-- `office`: office_id (optional)
-
-### Get Patient List
-```http
-GET /doctor/patients
-```
-
-### Update Appointment Status
-```http
-PUT /doctor/appointments/:id
-```
-
-**Request Body:**
+**Response:**
 ```json
 {
-  "status": "confirmed|cancelled|completed",
-  "notes": "Optional notes"
+  "appointments": [
+    {
+      "appointmentDateTime": "2025-03-26T09:00:00",
+      "status": "Scheduled"
+    },
+    {
+      "appointmentDateTime": "2025-03-26T10:00:00",
+      "status": "Available"
+    }
+  ]
 }
 ```
 
-### Prescribe Medication
+#### E. Book Appointment
 ```http
-POST /doctor/prescriptions
+POST /appointment/book
+Authorization: Bearer <token>
 ```
-
-**Request Body:**
+**Request:**
 ```json
 {
-  "patientId": "patient_id",
-  "medication": "medication_name",
-  "dosage": "dosage_info",
-  "frequency": "frequency_info",
-  "duration": "duration_info"
+  "appointmentDateTime": "2025-03-26T10:00:00",
+  "reason": "Initial pregnancy consultation",
+  "doctorID": "301",
+  "serviceID": "101",
+  "visitType": "In-Person"
 }
 ```
 
-## Admin Endpoints
+### 3. Patient Medical History Management
 
-### Get Financial Report
+#### A. Submit Medical History
 ```http
-GET /admin/reports/financial
+POST /auth/patient/medical-history
+Authorization: Bearer <token>
 ```
-
-**Query Parameters:**
-- `startDate`: YYYY-MM-DD
-- `endDate`: YYYY-MM-DD
-- `type`: "appointments|prescriptions|all"
-
-### Manage Users
-```http
-PUT /admin/users/:id
-```
-
-**Request Body:**
+**Request:**
 ```json
 {
-  "status": "active|inactive",
-  "role": "patient|doctor"
+  "allergies": [
+    {
+      "allergen": "Penicillin",
+      "reaction": "Rash",
+      "severity": "Moderate"
+    }
+  ],
+  "conditions": [
+    {
+      "condition": "Asthma",
+      "diagnosedDate": "2020-05-15",
+      "status": "Controlled"
+    }
+  ],
+  "surgeries": [
+    {
+      "procedure": "Appendectomy",
+      "date": "2019-03-10",
+      "hospital": "Memorial Hospital"
+    }
+  ],
+  "medications": [
+    {
+      "name": "Albuterol",
+      "dosage": "90mcg",
+      "frequency": "As needed"
+    }
+  ]
 }
 ```
 
-### Get System Analytics
+#### B. Update Insurance Information
 ```http
-GET /admin/analytics
+PUT /auth/patient/update-insurance
+Authorization: Bearer <token>
 ```
-
-**Query Parameters:**
-- `period`: "daily|weekly|monthly|yearly"
-- `type`: "appointments|prescriptions|revenue"
-
-## Common Response Formats
-
-### Success Response
+**Request:**
 ```json
 {
-  "success": true,
-  "data": {
-    // Response data here
+  "insuranceProvider": "Blue Cross",
+  "policyNumber": "BC123456789",
+  "groupNumber": "G987654",
+  "primaryHolder": "John Doe",
+  "relationship": "Self",
+  "effectiveDate": "2025-01-01",
+  "expirationDate": "2025-12-31"
+}
+```
+
+### 4. Doctor's Daily Workflow
+
+#### A. View Today's Appointments
+```http
+GET /dataFetch/get-doctor-appointments
+Authorization: Bearer <token>
+```
+**Response:**
+```json
+{
+  "appointments": [
+    {
+      "appointmentID": "501",
+      "patientFirstName": "Alice",
+      "patientLastName": "Johnson",
+      "appointmentDateTime": "2025-03-26T09:00:00",
+      "status": "Scheduled",
+      "serviceName": "Regular Checkup",
+      "patientDOB": "1990-05-15",
+      "patientGender": "F",
+      "patientPhoneNumber": "123-456-7890"
+    }
+  ]
+}
+```
+
+#### B. Update Appointment Status
+```http
+PUT /appointment/updateAppointment
+Authorization: Bearer <token>
+```
+**Request:**
+```json
+{
+  "appointmentID": "501",
+  "status": "Completed"
+}
+```
+
+### 5. Admin Analytics and Reports
+
+#### A. Get Appointment Analytics
+```http
+GET /auth/admin/appointmentAnalytics
+Authorization: Bearer <token>
+```
+**Response:**
+```json
+{
+  "totalAppointments": 150,
+  "byStatus": {
+    "Completed": 100,
+    "Scheduled": 30,
+    "Cancelled": 15,
+    "Missed": 5
+  },
+  "bySpecialty": {
+    "Obstetrics": 80,
+    "Gynecology": 70
+  },
+  "byDoctor": [
+    {
+      "doctorName": "Dr. Sarah Smith",
+      "appointmentCount": 45
+    }
+  ]
+}
+```
+
+#### B. Generate Prescription Report
+```http
+GET /auth/admin/get-prescription-report?startDate=2025-01-01&endDate=2025-03-26
+Authorization: Bearer <token>
+```
+**Response:**
+```json
+{
+  "totalPrescriptions": 250,
+  "byDoctor": [
+    {
+      "doctorName": "Dr. Sarah Smith",
+      "prescriptionCount": 75,
+      "topMedications": [
+        {
+          "medication": "Prenatal Vitamins",
+          "count": 30
+        }
+      ]
+    }
+  ],
+  "mostPrescribed": [
+    {
+      "medication": "Prenatal Vitamins",
+      "count": 100
+    }
+  ]
+}
+```
+
+## Notes on Error Handling
+
+All endpoints follow consistent error handling:
+
+```json
+{
+  "message": "Detailed error message",
+  "code": "ERROR_CODE",
+  "details": {
+    "field": "Description of the issue"
   }
 }
 ```
 
-### Error Response
+Common error scenarios:
+1. Invalid Authentication
 ```json
 {
-  "success": false,
-  "error": {
-    "code": "ERROR_CODE",
-    "message": "Error description"
+  "message": "Invalid or expired token",
+  "code": "AUTH_ERROR"
+}
+```
+
+2. Data Validation
+```json
+{
+  "message": "Invalid input data",
+  "code": "VALIDATION_ERROR",
+  "details": {
+    "appointmentDateTime": "Must be a future date",
+    "visitType": "Must be one of the allowed types"
   }
 }
 ```
 
-## Error Codes
-- `AUTH_ERROR`: Authentication related errors
-- `VALIDATION_ERROR`: Invalid input data
-- `NOT_FOUND`: Resource not found
-- `PERMISSION_DENIED`: User lacks required permissions
-- `SERVER_ERROR`: Internal server error
-
-## Rate Limiting
-- 100 requests per minute per IP address
-- 1000 requests per hour per authenticated user
-
-## Security
-- All endpoints require HTTPS
-- JWT tokens expire after 24 hours
-- Passwords must meet minimum complexity requirements
-- Input validation on all endpoints
-- CORS configured for frontend domain only
-
-This API documentation provides a comprehensive overview of the available endpoints and their usage. For detailed request/response examples and more specific use cases, please refer to the examples section below.
-
-## Example Workflows
-
-### Complete Appointment Booking Flow
-1. Patient logs in
-2. Gets available doctors
-3. Books appointment
-4. Receives confirmation
-5. Doctor approves
-6. Patient gets notification
-
-### Prescription Management Flow
-1. Doctor creates prescription
-2. Patient receives notification
-3. Patient selects pharmacy
-4. Patient requests refill
-5. Doctor approves refill
-6. Pharmacy gets notified
-
-For more examples and detailed workflows, please refer to our [API Examples](./EXAMPLES.md) document.
+3. Resource Conflicts
+```json
+{
+  "message": "Resource conflict",
+  "code": "CONFLICT_ERROR",
+  "details": {
+    "appointment": "Time slot already booked"
+  }
+}
+```
