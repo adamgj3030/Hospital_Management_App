@@ -118,8 +118,6 @@ Content-Type: application/json
 ### 2. Appointment Booking Flow
 
 #### A. Get Available Specialties
-
-#### A. Get Available Specialties
 ```http
 GET /appointment/specialties
 ```
